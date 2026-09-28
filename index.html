@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>適正家賃 ＆ 引越し初期費用 シミュレーター</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap');
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8fafc;
+            touch-action: manipulation;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #1d4ed8;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(29, 78, 216, 0.4);
+            border: 3px solid #ffffff;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #1d4ed8;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(29, 78, 216, 0.4);
+            border: 3px solid #ffffff;
+        }
+        .touch-card {
+            transition: all 0.15s ease-in-out;
+        }
+        .touch-card:active {
+            transform: scale(0.97);
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between bg-slate-100">
+
+    <!-- Compact Top Header (Fixed height shrink-0) -->
+    <header class="bg-gradient-to-r from-blue-900 via-blue-800 to-slate-900 text-white shadow-md flex-shrink-0">
+        <div class="max-w-7xl mx-auto px-4 py-2.5 sm:py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 sm:w-11 sm:h-11 bg-white/10 rounded-xl flex items-center justify-center text-white font-bold text-xl sm:text-2xl backdrop-blur-sm shadow-inner">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-lg sm:text-2xl font-black tracking-tight leading-none">適正家賃 ＆ 引越し初期費用 シミュレーター</h1>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="resetInputs()" class="bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm px-3.5 py-1.5 sm:py-2 rounded-xl transition font-extrabold border border-white/20 flex items-center">
+                    <i class="fa-solid fa-rotate-right mr-1.5"></i> リセット
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Ultra-Compact Top Notice Bar (Fixed height shrink-0) -->
+    <div class="bg-blue-100/90 border-b border-blue-200 text-blue-950 text-xs sm:text-sm py-2 px-4 text-center font-extrabold flex items-center justify-center gap-1.5 flex-shrink-0">
+        <i class="fa-solid fa-bolt text-amber-500 text-base"></i>
+        <span>入力はわずか<strong>3項目（約10秒）</strong>！ ①入力 → ②適正判定 → ③詳細内訳 → ④結果活用の4ステップが1画面で完結します。</span>
+    </div>
+
+    <!-- Main 4-Column Grid Dashboard Container (Pixel-Perfect Alignment Edition) -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 py-3.5 sm:py-4 flex-1 w-full my-auto grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+        
+        <!-- COLUMN 1: STEP 1 Inputs (lg:col-span-3) -->
+        <div class="lg:col-span-3 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <h2 class="text-lg font-black text-slate-900 flex items-center">
+                        <span class="w-7 h-7 bg-blue-700 text-white rounded-md inline-flex items-center justify-center font-black text-xs shadow-xs mr-2 flex-shrink-0">1</span>
+                        条件の入力
+                    </h2>
+                    <span class="text-xs text-slate-500 font-bold bg-slate-100 px-2.5 py-0.5 rounded-full"><i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i>個人情報不要</span>
+                </div>
+
+                <!-- INPUT 1: Monthly Income -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-end">
+                        <label class="text-xs sm:text-sm font-extrabold text-slate-800">① 毎月の手取り収入</label>
+                        <div class="text-right">
+                            <span class="text-3xl font-black text-blue-700" id="incomeVal">28</span>
+                            <span class="text-xs font-bold text-slate-600">万円/月</span>
+                        </div>
+                    </div>
+                    
+                    <input type="range" id="incomeInput" min="15" max="80" step="1" value="28" class="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-700">
+                    
+                    <div class="grid grid-cols-5 gap-1 pt-0.5">
+                        <button onclick="setNetIncome(20)" class="preset-btn border border-slate-300 hover:border-blue-600 py-1.5 text-xs font-black rounded-xl text-slate-700 bg-slate-50 hover:bg-blue-50 transition">20万</button>
+                        <button onclick="setNetIncome(25)" class="preset-btn border border-slate-300 hover:border-blue-600 py-1.5 text-xs font-black rounded-xl text-slate-700 bg-slate-50 hover:bg-blue-50 transition">25万</button>
+                        <button onclick="setNetIncome(30)" class="preset-btn border border-slate-300 hover:border-blue-600 py-1.5 text-xs font-black rounded-xl text-slate-700 bg-slate-50 hover:bg-blue-50 transition">30万</button>
+                        <button onclick="setNetIncome(40)" class="preset-btn border border-slate-300 hover:border-blue-600 py-1.5 text-xs font-black rounded-xl text-slate-700 bg-slate-50 hover:bg-blue-50 transition">40万</button>
+                        <button onclick="setNetIncome(50)" class="preset-btn border border-slate-300 hover:border-blue-600 py-1.5 text-xs font-black rounded-xl text-slate-700 bg-slate-50 hover:bg-blue-50 transition">50万</button>
+                    </div>
+                    <div class="text-xs text-slate-500 text-right font-medium">※想定額面年収: <span id="annualApproxVal" class="font-extrabold text-slate-800">430</span> 万円前後</div>
+                </div>
+
+                <!-- INPUT 2: Household Type -->
+                <div class="space-y-1.5 pt-1">
+                    <label class="text-xs sm:text-sm font-extrabold text-slate-800 block">② 入居人数 ・ ライフスタイル</label>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button type="button" onclick="setHousehold('single')" id="btnSingle" class="household-card touch-card border-2 border-blue-700 bg-blue-50 text-blue-900 p-2 rounded-xl text-center flex flex-col items-center">
+                            <i class="fa-solid fa-user text-lg mb-0.5 text-blue-700"></i>
+                            <span class="text-xs font-extrabold">1人暮らし</span>
+                        </button>
+                        <button type="button" onclick="setHousehold('couple')" id="btnCouple" class="household-card touch-card border border-slate-300 bg-white text-slate-700 p-2 rounded-xl text-center flex flex-col items-center hover:bg-slate-50">
+                            <i class="fa-solid fa-user-group text-lg mb-0.5 text-slate-500"></i>
+                            <span class="text-xs font-bold">2人・同棲</span>
+                        </button>
+                        <button type="button" onclick="setHousehold('family')" id="btnFamily" class="household-card touch-card border border-slate-300 bg-white text-slate-700 p-2 rounded-xl text-center flex flex-col items-center hover:bg-slate-50">
+                            <i class="fa-solid fa-people-roof text-lg mb-0.5 text-slate-500"></i>
+                            <span class="text-xs font-bold">ファミリー</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- INPUT 3: Target Rent Slider -->
+                <div class="space-y-1.5 pt-1">
+                    <div class="flex justify-between items-end">
+                        <label class="text-xs sm:text-sm font-extrabold text-slate-800">③ 検討中の部屋の家賃 <span class="text-xs font-normal text-slate-500">（共益費込）</span></label>
+                        <div class="text-right">
+                            <span class="text-3xl font-black text-blue-900" id="targetRentVal">6.0</span>
+                            <span class="text-xs font-bold text-slate-600">万円/月</span>
+                        </div>
+                    </div>
+                    <input type="range" id="targetRentInput" min="3" max="25" step="0.5" value="6.0" class="w-full h-2.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-blue-900">
+                </div>
+            </div>
+
+            <!-- Optional Detailed Accordion -->
+            <div class="border-t border-slate-100 pt-2">
+                <button onclick="toggleAdvanced()" class="text-xs text-slate-700 hover:text-blue-700 font-extrabold flex items-center justify-between w-full py-1">
+                    <span><i class="fa-solid fa-sliders text-slate-400 mr-1.5"></i> 条件詳細（敷・礼・時期）</span>
+                    <i id="advancedChevron" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                </button>
+                
+                <div id="advancedPanel" class="hidden pt-2 space-y-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200 mt-1">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="font-extrabold text-slate-800 block mb-0.5">敷金</label>
+                            <select id="depositSelect" onchange="calculateAll()" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white font-bold text-slate-800 text-xs">
+                                <option value="0">なし (0ヶ月)</option>
+                                <option value="1" selected>1.0ヶ月 (標準)</option>
+                                <option value="2">2.0ヶ月</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="font-extrabold text-slate-800 block mb-0.5">礼金</label>
+                            <select id="keyMoneySelect" onchange="calculateAll()" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white font-bold text-slate-800 text-xs">
+                                <option value="0">なし (0ヶ月)</option>
+                                <option value="1" selected>1.0ヶ月 (標準)</option>
+                                <option value="2">2.0ヶ月</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-extrabold text-slate-800 block mb-0.5">引越し時期</label>
+                        <select id="seasonSelect" onchange="calculateAll()" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white font-bold text-slate-800 text-xs">
+                            <option value="normal" selected>通常期 (5月〜2月)</option>
+                            <option value="peak">繁忙期 (3月〜4月)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUMN 2: STEP 2 Verdict & KPIs (lg:col-span-4) -->
+        <div class="lg:col-span-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+            
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <h2 class="text-lg font-black text-slate-900 flex items-center">
+                    <span class="w-7 h-7 bg-blue-700 text-white rounded-md inline-flex items-center justify-center font-black text-xs shadow-xs mr-2 flex-shrink-0">2</span>
+                    適正診断結果
+                </h2>
+                <span id="verdictBadge" class="text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 rounded-full shadow-xs">
+                    ★ 適正レンジ内
+                </span>
+            </div>
+
+            <!-- STEP 2: Inner Verdict Result Display -->
+            <div id="verdictCard" class="bg-white text-slate-800 rounded-xl p-3.5 shadow-sm border-2 border-emerald-500 space-y-3 transition-colors">
+                
+                <!-- Number Display & Progress Meter -->
+                <div class="space-y-2">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-xs sm:text-sm text-slate-500 font-extrabold">手取り家賃割合</div>
+                            <div class="text-3xl sm:text-4xl font-black text-blue-700 tracking-tight" id="verdictRatio">21.4 %</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs sm:text-sm text-slate-500 font-extrabold">おすすめ適正家賃</div>
+                            <div class="text-2xl sm:text-3xl font-black text-emerald-600" id="verdictRecommendedRange">5.6 〜 7.0 万円</div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Safety Meter -->
+                    <div class="space-y-1.5 pt-1">
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+                            <div id="verdictMeter" class="bg-emerald-500 h-full transition-all duration-300" style="width: 61%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-600 font-bold px-0.5">
+                            <span>理想的 (〜25%)</span>
+                            <span>標準 (〜30%)</span>
+                            <span>高負担 (30%〜)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comprehensive Advice & Financial Guidance Box -->
+                <div class="bg-slate-50 rounded-xl p-3 text-xs sm:text-sm leading-relaxed border border-slate-200 font-medium" id="verdictText">
+                    <!-- Dynamic JS content populated here -->
+                </div>
+            </div>
+
+            <!-- KPI Cards: Initial Cost & 2-Year Total -->
+            <div class="grid grid-cols-2 gap-2.5">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-0.5">
+                    <div class="text-xs sm:text-sm font-extrabold text-slate-700 flex items-center">
+                        <i class="fa-solid fa-receipt text-blue-700 mr-1.5"></i> 総初期費用概算
+                    </div>
+                    <div class="text-xl sm:text-2xl font-black text-blue-700" id="kpiInitialCost">38.6 万円</div>
+                    <div class="text-xs text-slate-500 font-medium">契約諸経費＋引越し代</div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-0.5">
+                    <div class="text-xs sm:text-sm font-extrabold text-slate-700 flex items-center">
+                        <i class="fa-solid fa-calendar-days text-slate-700 mr-1.5"></i> 2年間の総住居費
+                    </div>
+                    <div class="text-xl sm:text-2xl font-black text-slate-900" id="kpiTwoYearTotal">212.6 万円</div>
+                    <div class="text-xs text-slate-500 font-medium">家賃・共益費・初期費込</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUMN 3: STEP 3 Breakdowns (lg:col-span-3) -->
+        <div class="lg:col-span-3 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <h3 class="text-lg font-black text-slate-900 flex items-center">
+                        <span class="w-7 h-7 bg-blue-700 text-white rounded-md inline-flex items-center justify-center font-black text-xs shadow-xs mr-2 flex-shrink-0">3</span>
+                        詳細内訳
+                    </h3>
+                    <span class="text-xs text-slate-500 font-bold bg-slate-100 px-2.5 py-0.5 rounded-full">リアルタイム算出</span>
+                </div>
+
+                <!-- Block 1: Monthly Expense Breakdown -->
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-1.5">
+                    <div class="font-black text-xs sm:text-sm text-slate-900 flex justify-between items-center">
+                        <span>【月々の使い道】 <span class="text-xs font-normal text-slate-500">(手取り: <span id="monthlyTotalNetText" class="text-blue-700 font-bold">28.0万円</span>)</span></span>
+                    </div>
+                    
+                    <div class="flex gap-2.5 items-center py-1">
+                        <!-- Explicit Fixed 84px Container to prevent Chart.js explosion -->
+                        <div class="w-[84px] h-[84px] relative flex-shrink-0 flex items-center justify-center">
+                            <canvas id="monthlyChart"></canvas>
+                        </div>
+                        <div class="flex-1 space-y-1.5 text-xs">
+                            <div class="bg-white p-1.5 rounded-lg border flex justify-between items-center text-xs">
+                                <span class="font-extrabold text-slate-700"><span class="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block mr-1"></span>家賃</span>
+                                <span class="font-black text-slate-900" id="breakdownRent">6.0 万円</span>
+                            </div>
+                            <div class="bg-white p-1.5 rounded-lg border flex justify-between items-center text-xs">
+                                <span class="font-extrabold text-slate-700"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block mr-1"></span>生活費</span>
+                                <span class="font-black text-slate-900" id="breakdownLiving">12.0 万円</span>
+                            </div>
+                            <div class="bg-white p-1.5 rounded-lg border border-emerald-200 bg-emerald-50/50 flex justify-between items-center text-xs">
+                                <span class="font-extrabold text-emerald-950"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-1"></span>貯金自由</span>
+                                <span class="font-black text-emerald-700" id="breakdownSavings">10.0 万円</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block 2: Initial Cost Breakdown -->
+                <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-1.5">
+                    <div class="font-black text-xs sm:text-sm text-slate-900 flex justify-between items-center">
+                        <span>【初期費用明細一覧】</span>
+                        <span class="font-black text-blue-700 text-xs sm:text-sm">合計: <span id="breakdownInitialTotalHeader">38.6万円</span></span>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 text-xs">
+                        <div class="px-2.5 py-1 flex justify-between items-center">
+                            <span class="text-slate-600 font-medium">敷金 (1.0ヶ月)</span>
+                            <span class="font-extrabold text-slate-900" id="breakdownDeposit">6.0 万円</span>
+                        </div>
+                        <div class="px-2.5 py-1 flex justify-between items-center">
+                            <span class="text-slate-600 font-medium">礼金 (1.0ヶ月)</span>
+                            <span class="font-extrabold text-slate-900" id="breakdownKey">6.0 万円</span>
+                        </div>
+                        <div class="px-2.5 py-1 flex justify-between items-center">
+                            <span class="text-slate-600 font-medium">仲介料 (1.1ヶ月込)</span>
+                            <span class="font-extrabold text-slate-900" id="breakdownBroker">6.6 万円</span>
+                        </div>
+                        <div class="px-2.5 py-1 flex justify-between items-center">
+                            <span class="text-slate-600 font-medium">前家賃 (翌月分)</span>
+                            <span class="font-extrabold text-slate-900" id="breakdownAdvance">6.0 万円</span>
+                        </div>
+                        <div class="px-2.5 py-1 flex justify-between items-center">
+                            <span class="text-slate-600 font-medium">保証・保険・鍵諸費</span>
+                            <span class="font-extrabold text-slate-900" id="breakdownOther">5.0 万円</span>
+                        </div>
+                        <div class="px-2.5 py-1 flex justify-between items-center bg-blue-50/80 font-bold">
+                            <span class="text-blue-950">引越し料金 (概算)</span>
+                            <span class="font-black text-blue-900" id="breakdownMoving">4.0 万円</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- COLUMN 4: STEP 4 Dedicated Rightmost CTA Panel (lg:col-span-2) -->
+        <div class="lg:col-span-2 bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <h3 class="text-lg font-black text-slate-900 flex items-center">
+                        <span class="w-7 h-7 bg-blue-700 text-white rounded-md inline-flex items-center justify-center font-black text-xs shadow-xs mr-2 flex-shrink-0">4</span>
+                        活用
+                    </h3>
+                </div>
+
+                <!-- Vertical CTA Buttons Stack -->
+                <div class="flex flex-col gap-2.5 w-full">
+                    <button onclick="openModal('sendModal')" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 px-2 rounded-xl shadow transition flex flex-col items-center justify-center text-center group border border-blue-400/30">
+                        <i class="fa-solid fa-share-nodes text-base mb-1 text-blue-100 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs sm:text-sm font-black leading-tight">自分に送る</span>
+                        <span class="text-[10px] text-blue-100 font-medium mt-0.5">LINE / メール</span>
+                    </button>
+
+                    <button onclick="openModal('staffModal')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 px-2 rounded-xl shadow transition flex flex-col items-center justify-center text-center group border border-indigo-400/30">
+                        <i class="fa-solid fa-store text-base mb-1 text-indigo-100 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs sm:text-sm font-black leading-tight">店員に共有</span>
+                        <span class="text-[10px] text-indigo-100 font-medium mt-0.5">相談コード</span>
+                    </button>
+
+                    <button onclick="openModal('propertyModal')" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-2 rounded-xl shadow transition flex flex-col items-center justify-center text-center group border border-emerald-400/30">
+                        <i class="fa-solid fa-house-circle-check text-base mb-1 text-emerald-100 group-hover:scale-110 transition-transform"></i>
+                        <span class="text-xs sm:text-sm font-black leading-tight">福岡物件</span>
+                        <span class="text-[10px] text-emerald-100 font-medium mt-0.5">おすすめ</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-[10px] text-slate-400 text-center font-bold border-t border-slate-100 pt-2">
+                ワンタップ共有
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer (Fixed height shrink-0) -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-2 text-center flex-shrink-0">
+        適正家賃 ＆ 引越し初期費用 シミュレーター
+    </footer>
+
+    <!-- MODAL 1: Send Results to Self -->
+    <div id="sendModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 shadow-2xl relative">
+            <button onclick="closeModal('sendModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-1">
+                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <h3 class="font-extrabold text-base text-slate-900">診断結果をスマートフォンに送る</h3>
+                <p class="text-xs text-slate-500">試算結果のURLを保存できます。</p>
+            </div>
+            <form onsubmit="handleModalSubmit(event, '診断結果を送信しました！スマホでご確認ください。', 'sendModal')" class="space-y-3 text-xs">
+                <div>
+                    <label class="font-extrabold text-slate-700 block mb-1">送信方法</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border rounded-xl p-2.5 flex items-center justify-center cursor-pointer bg-blue-50 border-blue-600 text-blue-800 font-bold">
+                            <input type="radio" name="sendType" value="line" checked class="mr-1.5"> LINE受取
+                        </label>
+                        <label class="border rounded-xl p-2.5 flex items-center justify-center cursor-pointer bg-slate-50 text-slate-700 font-bold">
+                            <input type="radio" name="sendType" value="email" class="mr-1.5"> メール受取
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="font-extrabold text-slate-700 block mb-1">宛先</label>
+                    <input type="text" required placeholder="example@email.com" class="w-full border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-blue-600 text-xs font-medium">
+                </div>
+                <button type="submit" class="w-full bg-blue-700 hover:bg-blue-600 text-white font-extrabold py-3 rounded-2xl shadow transition text-xs">
+                    結果を送る
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Share with Store Staff -->
+    <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-3 shadow-2xl relative">
+            <button onclick="closeModal('staffModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-1">
+                <div class="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <h3 class="font-extrabold text-base text-slate-900">店舗スタッフへ相談番号を提示</h3>
+                <p class="text-xs text-slate-500">カウンターで受付番号をお伝えください。</p>
+            </div>
+            
+            <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-3 text-center space-y-1">
+                <div class="text-xs font-bold text-indigo-800">あなたの試算共有コード</div>
+                <div class="text-2xl font-black text-indigo-950 tracking-wider">#RENT-8842</div>
+                <div class="text-[11px] text-indigo-700 font-bold">（想定家賃: <span id="staffModalRentText">6.0万円</span> / 初期費用: <span id="staffModalInitialText">38.6万円</span>）</div>
+            </div>
+
+            <button onclick="closeModal('staffModal')" class="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-extrabold py-2.5 rounded-2xl shadow transition text-xs">
+                閉じてスタッフに見せる
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Fukuoka City Property Samples -->
+    <div id="propertyModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 space-y-3 shadow-2xl relative">
+            <button onclick="closeModal('propertyModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-0.5">
+                <h3 class="font-extrabold text-base text-slate-900">福岡市内の適正おすすめ物件 <span class="text-blue-700 font-black">（<span id="modalRentTargetText">6.0万円</span>付近）</span></h3>
+                <p class="text-xs text-slate-500">福岡市エリアの賃貸物件サンプル</p>
+            </div>
+            
+            <div class="space-y-2.5 max-h-64 overflow-y-auto pr-1 text-xs">
+                <div class="border rounded-2xl p-3 flex gap-2.5 items-center bg-white shadow-xs">
+                    <div class="w-11 h-11 bg-blue-50 text-blue-700 rounded-xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-blue-100">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-black text-slate-900 text-xs">グランドパレス天神 502号室</div>
+                        <div class="text-slate-500 text-[11px]">福岡市中央区天神 / 1K (26.5㎡) / 天神駅徒歩6分</div>
+                        <div class="text-blue-800 font-black text-xs">家賃 5.8万円 <span class="text-[10px] text-slate-500 font-normal">(共益費 4,000円)</span></div>
+                    </div>
+                </div>
+
+                <div class="border rounded-2xl p-3 flex gap-2.5 items-center bg-white shadow-xs">
+                    <div class="w-11 h-11 bg-indigo-50 text-indigo-700 rounded-xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-indigo-100">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-black text-slate-900 text-xs">ステラコート博多駅前 301号室</div>
+                        <div class="text-slate-500 text-[11px]">福岡市博多区博多駅前 / 1DK (31.0㎡) / 博多駅徒歩5分</div>
+                        <div class="text-blue-800 font-black text-xs">家賃 6.2万円 <span class="text-[10px] text-slate-500 font-normal">(共益費 5,000円)</span></div>
+                    </div>
+                </div>
+
+                <div class="border rounded-2xl p-3 flex gap-2.5 items-center bg-white shadow-xs">
+                    <div class="w-11 h-11 bg-emerald-50 text-emerald-700 rounded-xl flex items-center justify-center text-xl font-bold flex-shrink-0 border border-emerald-100">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-black text-slate-900 text-xs">ル・シェル西新 203号室</div>
+                        <div class="text-slate-500 text-[11px]">福岡市早良区西新 / 1K (25.0㎡) / 西新駅徒歩4分</div>
+                        <div class="text-blue-800 font-black text-xs">家賃 5.5万円 <span class="text-[10px] text-slate-500 font-normal">(共益費 3,500円)</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeModal('propertyModal'); openModal('staffModal');" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 rounded-2xl shadow transition text-xs">
+                この条件で福岡市内の空室確認をスタッフに頼む
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Simulation Engine -->
+    <script>
+        let household = 'single';
+        let monthlyChartInstance = null;
+
+        const incomeInput = document.getElementById('incomeInput');
+        const incomeVal = document.getElementById('incomeVal');
+        const targetRentInput = document.getElementById('targetRentInput');
+        const targetRentVal = document.getElementById('targetRentVal');
+        const annualApproxVal = document.getElementById('annualApproxVal');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            incomeInput.addEventListener('input', calculateAll);
+            targetRentInput.addEventListener('input', calculateAll);
+            calculateAll();
+        });
+
+        function setNetIncome(val) {
+            incomeInput.value = val;
+            calculateAll();
+        }
+
+        function setHousehold(type) {
+            household = type;
+            document.querySelectorAll('.household-card').forEach(card => {
+                card.classList.remove('border-2', 'border-blue-700', 'bg-blue-50', 'text-blue-900', 'font-extrabold');
+                card.classList.add('border', 'border-slate-300', 'bg-white', 'text-slate-700', 'font-bold');
+            });
+
+            const activeCard = document.getElementById(type === 'single' ? 'btnSingle' : type === 'couple' ? 'btnCouple' : 'btnFamily');
+            activeCard.classList.remove('border', 'border-slate-300', 'bg-white', 'text-slate-700', 'font-bold');
+            activeCard.classList.add('border-2', 'border-blue-700', 'bg-blue-50', 'text-blue-900', 'font-extrabold');
+
+            calculateAll();
+        }
+
+        function toggleAdvanced() {
+            const panel = document.getElementById('advancedPanel');
+            const chevron = document.getElementById('advancedChevron');
+            panel.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        function resetInputs() {
+            incomeInput.value = 28;
+            targetRentInput.value = 6.0;
+            setHousehold('single');
+            calculateAll();
+        }
+
+        function calculateAll() {
+            const netMonthly = parseFloat(incomeInput.value); // 万円
+            const targetRent = parseFloat(targetRentInput.value); // 万円
+            const depositMonths = parseFloat(document.getElementById('depositSelect').value);
+            const keyMoneyMonths = parseFloat(document.getElementById('keyMoneySelect').value);
+            const season = document.getElementById('seasonSelect').value;
+
+            // UI Label updates
+            incomeVal.innerText = netMonthly;
+            targetRentVal.innerText = targetRent.toFixed(1);
+            
+            // Approx Annual Income
+            const approxAnnual = Math.round((netMonthly * 12 / 0.78) / 10) * 10;
+            annualApproxVal.innerText = approxAnnual;
+
+            // Recommended Rent Range (20% to 25% of Net)
+            const recMin = Math.round((netMonthly * 0.20) * 10) / 10;
+            const recMax = Math.round((netMonthly * 0.25) * 10) / 10;
+            document.getElementById('verdictRecommendedRange').innerText = `${recMin.toFixed(1)} 〜 ${recMax.toFixed(1)} 万円`;
+
+            // Ratio of Rent to Net Income
+            const ratio = Math.round((targetRent / netMonthly) * 1000) / 10;
+            document.getElementById('verdictRatio').innerText = `${ratio.toFixed(1)} %`;
+
+            // Verdict Card Logic & Visual Safety Meter
+            const verdictCard = document.getElementById('verdictCard');
+            const verdictBadge = document.getElementById('verdictBadge');
+            const verdictText = document.getElementById('verdictText');
+            const verdictMeter = document.getElementById('verdictMeter');
+
+            const baseLiving = household === 'single' ? 12.0 : household === 'couple' ? 19.0 : 25.0;
+            const savingsAndFree = Math.max(0, Math.round((netMonthly - targetRent - baseLiving) * 10) / 10);
+            const annualRent = Math.round((targetRent * 12) * 10) / 10;
+            const annualRentPct = Math.round((annualRent / approxAnnual) * 1000) / 10;
+            const meterPct = Math.min(100, Math.max(8, Math.round((ratio / 38) * 100)));
+            if (verdictMeter) verdictMeter.style.width = `${meterPct}%`;
+
+            if (ratio <= 25) {
+                verdictCard.className = "bg-white text-slate-800 rounded-xl p-3.5 shadow-sm border-2 border-emerald-500 space-y-3 transition-colors";
+                verdictBadge.className = "text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 rounded-full shadow-xs";
+                verdictBadge.innerHTML = "★ 適正家賃レンジ内 (理想的)";
+                document.getElementById('verdictRecommendedRange').className = "text-2xl sm:text-3xl font-black text-emerald-600";
+                if (verdictMeter) verdictMeter.className = "bg-emerald-500 h-full transition-all duration-300";
+                verdictText.innerHTML = `
+                    <div class="space-y-1.5 text-xs sm:text-sm text-slate-800">
+                        <div class="flex items-center font-black text-emerald-700 text-sm">
+                            <i class="fa-solid fa-circle-check mr-1.5 text-base"></i> 理想的な固定費バランスです
+                        </div>
+                        <div class="leading-snug text-slate-700">検討家賃 <strong class="text-slate-900">${targetRent.toFixed(1)}万円</strong> は手取り ${netMonthly}万円 に対し <strong class="text-blue-700">${ratio.toFixed(1)}%</strong>。無理なく貯金と両立できます。</div>
+                        <div class="bg-emerald-50/80 border border-emerald-200 p-2.5 rounded-xl text-xs text-emerald-950 font-medium space-y-0.5">
+                            <div>💡 <strong>生活影響</strong>: 毎月約 <strong class="text-emerald-800">${savingsAndFree.toFixed(1)}万円</strong> を貯蓄・自由費に回せます。</div>
+                            <div>🛡️ <strong>入居審査</strong>: 想定年収 ${approxAnnual}万円 に対し家賃年額 ${annualRent.toFixed(1)}万円 (${annualRentPct.toFixed(1)}%) のため審査も安心です。</div>
+                        </div>
+                    </div>
+                `;
+            } else if (ratio <= 30) {
+                verdictCard.className = "bg-white text-slate-800 rounded-xl p-3.5 shadow-sm border-2 border-amber-500 space-y-3 transition-colors";
+                verdictBadge.className = "text-xs font-black bg-amber-100 text-amber-800 border border-amber-300 px-3 py-1 rounded-full shadow-xs";
+                verdictBadge.innerHTML = "▲ 標準限界水準 (注意)";
+                document.getElementById('verdictRecommendedRange').className = "text-2xl sm:text-3xl font-black text-amber-600";
+                if (verdictMeter) verdictMeter.className = "bg-amber-500 h-full transition-all duration-300";
+                verdictText.innerHTML = `
+                    <div class="space-y-1.5 text-xs sm:text-sm text-slate-800">
+                        <div class="flex items-center font-black text-amber-700 text-sm">
+                            <i class="fa-solid fa-triangle-exclamation mr-1.5 text-base"></i> 固定費がやや高めの水準です
+                        </div>
+                        <div class="leading-snug text-slate-700">検討家賃 <strong class="text-slate-900">${targetRent.toFixed(1)}万円</strong> は手取りの <strong class="text-amber-700">${ratio.toFixed(1)}%</strong> を占めます。家賃上限 <strong class="text-amber-800">${recMax.toFixed(1)}万円</strong> 以下を推奨します。</div>
+                        <div class="bg-amber-50/80 border border-amber-200 p-2.5 rounded-xl text-xs text-amber-950 font-medium space-y-0.5">
+                            <div>💡 <strong>生活影響</strong>: 毎月の貯蓄・自由費が約 <strong class="text-amber-800">${savingsAndFree.toFixed(1)}万円</strong> に圧迫されます。</div>
+                            <div>🛡️ <strong>改善策</strong>: 共益費・通信費込み物件の検討で毎月の固定費を削減可能です。</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                verdictCard.className = "bg-white text-slate-800 rounded-xl p-3.5 shadow-sm border-2 border-red-500 space-y-3 transition-colors";
+                verdictBadge.className = "text-xs font-black bg-red-100 text-red-800 border border-red-300 px-3 py-1 rounded-full shadow-xs";
+                verdictBadge.innerHTML = "✕ 家賃高め (要調整)";
+                document.getElementById('verdictRecommendedRange').className = "text-2xl sm:text-3xl font-black text-red-600";
+                if (verdictMeter) verdictMeter.className = "bg-red-500 h-full transition-all duration-300";
+                verdictText.innerHTML = `
+                    <div class="space-y-1.5 text-xs sm:text-sm text-slate-800">
+                        <div class="flex items-center font-black text-red-700 text-sm">
+                            <i class="fa-solid fa-circle-xmark mr-1.5 text-base"></i> 家賃負担が大きい水準です
+                        </div>
+                        <div class="leading-snug text-slate-700">検討家賃が手取りの <strong class="text-red-700">${ratio.toFixed(1)}%</strong> を占め高めです。適正上限 <strong class="text-red-800">${recMax.toFixed(1)}万円</strong> 以下への見直しをおすすめします。</div>
+                        <div class="bg-red-50/80 border border-red-200 p-2.5 rounded-xl text-xs text-red-950 font-medium space-y-0.5">
+                            <div>⚠️ <strong>リスク</strong>: 毎月の生活費が圧迫され急な支出への備えが困難になります。</div>
+                            <div>🛡️ <strong>審査注意</strong>: 家賃高めのため入居審査で追加確認となる場合があります。</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Initial Costs Calculation
+            const deposit = targetRent * depositMonths;
+            const keyMoney = targetRent * keyMoneyMonths;
+            const broker = Math.round(targetRent * 1.1 * 10) / 10;
+            const advance = targetRent * 1.0;
+            const guarantee = targetRent * 0.5;
+            const insuranceEtc = household === 'family' ? 6.5 : 5.0;
+            const otherFees = guarantee + insuranceEtc;
+            let moving = household === 'single' ? 4.0 : household === 'couple' ? 7.0 : 10.0;
+            if (season === 'peak') moving *= 1.5;
+
+            const totalInitial = Math.round((deposit + keyMoney + broker + advance + otherFees + moving) * 10) / 10;
+            document.getElementById('kpiInitialCost').innerText = `${totalInitial.toFixed(1)} 万円`;
+            document.getElementById('staffModalInitialText').innerText = `${totalInitial.toFixed(1)}万円`;
+            document.getElementById('staffModalRentText').innerText = `${targetRent.toFixed(1)}万円`;
+            document.getElementById('modalRentTargetText').innerText = `${targetRent.toFixed(1)}万円`;
+
+            // 2-Year Total Occupancy Cost
+            const twoYearTotal = Math.round(((targetRent + 1.0) * 24 + totalInitial + targetRent) * 10) / 10;
+            document.getElementById('kpiTwoYearTotal').innerText = `${twoYearTotal.toFixed(1)} 万円`;
+
+            // Breakdown DOM updates
+            document.getElementById('monthlyTotalNetText').innerText = `${netMonthly.toFixed(1)}万円`;
+            document.getElementById('breakdownRent').innerText = `${targetRent.toFixed(1)} 万円`;
+
+            document.getElementById('breakdownLiving').innerText = `${baseLiving.toFixed(1)} 万円`;
+            document.getElementById('breakdownSavings').innerText = `${savingsAndFree.toFixed(1)} 万円`;
+
+            document.getElementById('breakdownInitialTotalHeader').innerText = `${totalInitial.toFixed(1)}万円`;
+            document.getElementById('breakdownDeposit').innerText = `${deposit.toFixed(1)} 万円`;
+            document.getElementById('breakdownKey').innerText = `${keyMoney.toFixed(1)} 万円`;
+            document.getElementById('breakdownBroker').innerText = `${broker.toFixed(1)} 万円`;
+            document.getElementById('breakdownAdvance').innerText = `${advance.toFixed(1)} 万円`;
+            document.getElementById('breakdownOther').innerText = `${otherFees.toFixed(1)} 万円`;
+            document.getElementById('breakdownMoving').innerText = `${moving.toFixed(1)} 万円`;
+
+            // Chart
+            renderMonthlyChart(netMonthly, targetRent, baseLiving, savingsAndFree);
+        }
+
+        function renderMonthlyChart(netMonthly, rent, baseLiving, savingsAndFree) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            if (monthlyChartInstance) monthlyChartInstance.destroy();
+
+            monthlyChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['家賃', '生活費', '貯蓄'],
+                    datasets: [{
+                        data: [rent, baseLiving, savingsAndFree],
+                        backgroundColor: ['#2563eb', '#f59e0b', '#10b981'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    cutout: '68%'
+                }
+            });
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function handleModalSubmit(e, message, modalId) {
+            e.preventDefault();
+            alert(message);
+            closeModal(modalId);
+        }
+    </script>
+</body>
+</html>
